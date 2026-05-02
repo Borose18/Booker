@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, startOfWeek, addDays, isToday } from "date-fns";
 import { CalendarDays, Clock, CheckCircle2, XCircle, TrendingUp, ChevronRight, RefreshCw } from "lucide-react";
@@ -22,17 +21,10 @@ type Appointment = {
 };
 
 export default function AdminDashboard() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [view, setView] = useState<"day" | "week">("day");
   const [viewDate, setViewDate] = useState(format(new Date(), "yyyy-MM-dd"));
-
-  const checkAuth = useCallback(async () => {
-    const res = await fetch("/api/admin/me");
-    const data = await res.json();
-    if (!data.authenticated) router.push("/admin/login");
-  }, [router]);
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -46,8 +38,8 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    checkAuth().then(fetchAppointments);
-  }, [checkAuth, fetchAppointments]);
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   const today = format(new Date(), "yyyy-MM-dd");
   const todayAppts = appointments.filter((a) => a.date === today);

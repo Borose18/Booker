@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Search, CalendarDays, Filter, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -28,7 +27,6 @@ type Appointment = {
 const ALL_STATUSES = ["", "PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"];
 
 export default function AppointmentsPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [search, setSearch] = useState("");
@@ -39,12 +37,6 @@ export default function AppointmentsPage() {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
-
-  const checkAuth = useCallback(async () => {
-    const res = await fetch("/api/admin/me");
-    const data = await res.json();
-    if (!data.authenticated) router.push("/admin/login");
-  }, [router]);
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -58,8 +50,8 @@ export default function AppointmentsPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth().then(fetchAppointments);
-  }, [checkAuth, fetchAppointments]);
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   const updateStatus = async (id: string, status: string) => {
     setActionLoading(true);

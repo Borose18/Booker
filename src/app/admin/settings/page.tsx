@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Save, Eye, EyeOff } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
@@ -17,7 +16,6 @@ type BusinessSettings = {
 };
 
 export default function SettingsPage() {
-  const router = useRouter();
   const [settings, setSettings] = useState<BusinessSettings>({
     businessName: "",
     tagline: "",
@@ -37,14 +35,8 @@ export default function SettingsPage() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordSaved, setPasswordSaved] = useState(false);
 
-  const checkAuth = useCallback(async () => {
-    const res = await fetch("/api/admin/me");
-    const data = await res.json();
-    if (!data.authenticated) router.push("/admin/login");
-  }, [router]);
-
   useEffect(() => {
-    checkAuth().then(async () => {
+    (async () => {
       const res = await fetch("/api/business");
       const data = await res.json();
       if (data) {
@@ -58,7 +50,7 @@ export default function SettingsPage() {
         });
       }
     });
-  }, [checkAuth]);
+  }, []);
 
   const handleSaveSettings = async () => {
     setSaving(true);

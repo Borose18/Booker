@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Calendar, Lock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,13 +20,15 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Invalid password");
+        setError(data.error || "Login failed. Please try again.");
         return;
       }
-      router.push("/admin");
-      router.refresh();
+      // Hard navigation so the new session cookie is picked up
+      window.location.href = "/admin";
+    } catch (err) {
+      setError("Network error. Is the server running?");
     } finally {
       setLoading(false);
     }
@@ -47,18 +47,16 @@ export default function AdminLoginPage() {
 
         <div className="bg-white rounded-2xl p-6 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Input
-                label="Admin Password"
-                id="password"
-                type="password"
-                required
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                error={error}
-              />
-            </div>
+            <Input
+              label="Admin Password"
+              id="password"
+              type="password"
+              required
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={error}
+            />
 
             <Button type="submit" loading={loading} className="w-full" size="lg">
               <Lock size={16} />

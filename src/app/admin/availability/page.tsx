@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Plus, Trash2, Clock, CalendarOff, Save } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -34,7 +33,6 @@ const DEFAULT_HOURS: Omit<WorkingHours, "id">[] = DAY_NAMES.map((_, i) => ({
 }));
 
 export default function AvailabilityPage() {
-  const router = useRouter();
   const [workingHours, setWorkingHours] = useState<Omit<WorkingHours, "id">[]>(DEFAULT_HOURS);
   const [blockedTimes, setBlockedTimes] = useState<BlockedTime[]>([]);
   const [saving, setSaving] = useState(false);
@@ -42,12 +40,6 @@ export default function AvailabilityPage() {
   const [blockModalOpen, setBlockModalOpen] = useState(false);
   const [blockForm, setBlockForm] = useState({ date: "", startTime: "", endTime: "", reason: "" });
   const [blockSaving, setBlockSaving] = useState(false);
-
-  const checkAuth = useCallback(async () => {
-    const res = await fetch("/api/admin/me");
-    const data = await res.json();
-    if (!data.authenticated) router.push("/admin/login");
-  }, [router]);
 
   const fetchData = useCallback(async () => {
     const [hoursRes, blockedRes] = await Promise.all([
@@ -68,8 +60,8 @@ export default function AvailabilityPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth().then(fetchData);
-  }, [checkAuth, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   const handleSaveHours = async () => {
     setSaving(true);

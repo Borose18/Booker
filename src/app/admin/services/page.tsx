@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Plus, Pencil, EyeOff, Eye, Scissors } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/Button";
@@ -22,7 +21,6 @@ type Service = {
 const emptyForm = { name: "", duration: "60", price: "0", description: "" };
 
 export default function ServicesPage() {
-  const router = useRouter();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,12 +28,6 @@ export default function ServicesPage() {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-
-  const checkAuth = useCallback(async () => {
-    const res = await fetch("/api/admin/me");
-    const data = await res.json();
-    if (!data.authenticated) router.push("/admin/login");
-  }, [router]);
 
   const fetchServices = useCallback(async () => {
     setLoading(true);
@@ -49,8 +41,8 @@ export default function ServicesPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth().then(fetchServices);
-  }, [checkAuth, fetchServices]);
+    fetchServices();
+  }, [fetchServices]);
 
   const openNew = () => {
     setEditingId(null);
