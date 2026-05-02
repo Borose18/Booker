@@ -3,8 +3,9 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 
-const dbUrl = process.env.DATABASE_URL || "file:/home/user/Booker/dev.db";
-const adapter = new PrismaLibSql({ url: dbUrl });
+const adapter = new PrismaLibSql({
+  url: process.env.DATABASE_URL || "file:/home/user/Booker/dev.db",
+});
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -25,6 +26,8 @@ async function main() {
       },
     });
     console.log("✓ Created business settings (password: admin123)");
+  } else {
+    console.log("✓ Business settings already exist");
   }
 
   // Seed services
@@ -75,26 +78,30 @@ async function main() {
       ],
     });
     console.log("✓ Created sample services");
+  } else {
+    console.log("✓ Services already exist");
   }
 
-  // Seed working hours (Mon–Sat, 9am–6pm)
+  // Seed working hours (Mon–Sat)
   const hoursCount = await prisma.workingHours.count();
   if (hoursCount === 0) {
     await prisma.workingHours.createMany({
       data: [
-        { dayOfWeek: 0, startTime: "09:00", endTime: "18:00", isActive: false }, // Sun
-        { dayOfWeek: 1, startTime: "09:00", endTime: "18:00", isActive: true },  // Mon
-        { dayOfWeek: 2, startTime: "09:00", endTime: "18:00", isActive: true },  // Tue
-        { dayOfWeek: 3, startTime: "09:00", endTime: "18:00", isActive: true },  // Wed
-        { dayOfWeek: 4, startTime: "09:00", endTime: "18:00", isActive: true },  // Thu
-        { dayOfWeek: 5, startTime: "09:00", endTime: "18:00", isActive: true },  // Fri
-        { dayOfWeek: 6, startTime: "10:00", endTime: "16:00", isActive: true },  // Sat
+        { dayOfWeek: 0, startTime: "09:00", endTime: "18:00", isActive: false },
+        { dayOfWeek: 1, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 2, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 3, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 4, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 5, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 6, startTime: "10:00", endTime: "16:00", isActive: true },
       ],
     });
     console.log("✓ Created default working hours");
+  } else {
+    console.log("✓ Working hours already exist");
   }
 
-  console.log("✓ Database seeded successfully");
+  console.log("\n✓ Database seeded successfully");
 }
 
 main()
