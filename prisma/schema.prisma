@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  duration     Int
+  price        Float
+  description  String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  appointments Appointment[]
+}
+
+model WorkingHours {
+  id        String  @id @default(cuid())
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+}
+
+model BlockedTime {
+  id        String   @id @default(cuid())
+  date      String
+  startTime String?
+  endTime   String?
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  date          String
+  startTime     String
+  endTime       String
+  status        String   @default("PENDING")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BusinessSettings {
+  id            String  @id @default(cuid())
+  businessName  String  @default("My Business")
+  tagline       String?
+  description   String?
+  email         String?
+  phone         String?
+  address       String?
+  adminPassword String
+}
