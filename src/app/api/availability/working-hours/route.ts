@@ -1,8 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthenticated } from "@/lib/auth";
+import { isAdminAuthenticated, ensureDefaultSettings } from "@/lib/auth";
+
+async function ensureDefaultHours() {
+  const count = await prisma.workingHours.count();
+  if (count === 0) {
+    await prisma.workingHours.createMany({
+      data: [
+        { dayOfWeek: 0, startTime: "09:00", endTime: "18:00", isActive: false },
+        { dayOfWeek: 1, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 2, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 3, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 4, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 5, startTime: "09:00", endTime: "18:00", isActive: true },
+        { dayOfWeek: 6, startTime: "10:00", endTime: "16:00", isActive: true },
+      ],
+    });
+  }
+}
 
 export async function GET() {
+  await ensureDefaultSettings();
+  await ensureDefaultHours();
   const hours = await prisma.workingHours.findMany({
     orderBy: { dayOfWeek: "asc" },
   });
@@ -22,7 +41,7 @@ export async function PUT(req: NextRequest) {
   }
 
   await prisma.workingHours.deleteMany();
-  const created = await prisma.workingHours.createMany({
+  await prisma.workingHours.createMany({
     data: hours.map((h: { dayOfWeek: number; startTime: string; endTime: string; isActive: boolean }) => ({
       dayOfWeek: h.dayOfWeek,
       startTime: h.startTime,

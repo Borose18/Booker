@@ -4,8 +4,23 @@ import bcrypt from "bcryptjs";
 
 const SESSION_COOKIE = "booker_admin_session";
 const SESSION_VALUE = "authenticated";
+const DEFAULT_PASSWORD = "admin123";
+
+export async function ensureDefaultSettings() {
+  const existing = await prisma.businessSettings.findFirst();
+  if (!existing) {
+    const hashed = await bcrypt.hash(DEFAULT_PASSWORD, 12);
+    await prisma.businessSettings.create({
+      data: {
+        businessName: "My Business",
+        adminPassword: hashed,
+      },
+    });
+  }
+}
 
 export async function verifyAdminPassword(password: string): Promise<boolean> {
+  await ensureDefaultSettings();
   const settings = await prisma.businessSettings.findFirst();
   if (!settings) return false;
   return bcrypt.compare(password, settings.adminPassword);
